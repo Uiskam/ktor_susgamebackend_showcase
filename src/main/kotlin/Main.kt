@@ -6,11 +6,30 @@ import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.util.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.Serializable
 
+import kotlinx.serialization.json.Json
+
+@Serializable
+data class GameCreationRequest(val gameName: String, val maxNumberOfPlayers: Int=4, val gamePin: String? = null)
+
+@OptIn(InternalAPI::class)
 suspend fun main() {
-    val RESTClient  = HttpClient(CIO)
+    val RESTClient  = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(Json {
+                isLenient = true
+                ignoreUnknownKeys = true
+                allowSpecialFloatingPointValues = true
+                useArrayPolymorphism = false
+            })
+        }
+    }
     val address = "http://0.0.0.0:8080"
     //val response: HttpResponse = RESTClient .get("http://0.0.0.0/8080")
     while (true) {
@@ -39,8 +58,16 @@ suspend fun main() {
             "3" -> {
                 println("Enter game name:")
                 val name = readlnOrNull() ?: ""
-                val response: HttpResponse = RESTClient .post("$address/games/$name")
-                println(response.bodyAsText())
+                println("Enter max number of players:")
+                val maxPlayers = readlnOrNull() ?: ""
+                println("Enter game pin:")
+                val pin = readlnOrNull() ?: ""
+
+                val response: HttpResponse = RESTClient.post("$address/games") {
+                    contentType(ContentType.Application.Json)
+                    setBody(GameCreationRequest(name, maxPlayers.toInt(), pin))
+                }
+                println("RES body: ${response.bodyAsText()}")
             }
 
             "4" -> {
@@ -59,7 +86,7 @@ suspend fun main() {
                 }
                 println("Type exit to end the session")
                 runBlocking {
-                    webSocketClient.webSocket(method = HttpMethod.Get, host = "0.0.0.0", port = 8080, path = "/games/join?gameName=$id&playerName=$playerName") {
+                    webSocketClient.webSocket(method = HttpMethod.Get, host = "0.0.0.0", port = 8080, path = "/games/join?gameId=$id&playerName=$playerName") {
                         val messageOutputRoutine = launch { outputMessages() }
                         val userInputRoutine = launch { inputMessages() }
 
