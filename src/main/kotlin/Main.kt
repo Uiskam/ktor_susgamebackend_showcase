@@ -2,25 +2,27 @@ package org.example
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.util.*
-import io.ktor.websocket.*
-import kotlinx.coroutines.*
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
-
 import kotlinx.serialization.json.Json
 
 @Serializable
-data class GameCreationRequest(val gameName: String, val maxNumberOfPlayers: Int=4, val gamePin: String? = null)
+data class GameCreationRequest(val gameName: String, val maxNumberOfPlayers: Int = 4, val gamePin: String? = null)
 
-@OptIn(InternalAPI::class)
+
+const val HOST = "192.168.0.105"
+
+
 suspend fun main() {
-    val RESTClient  = HttpClient(CIO) {
+    val RESTClient = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
                 isLenient = true
@@ -30,8 +32,10 @@ suspend fun main() {
             })
         }
     }
-    val address = "http://0.0.0.0:8080"
-    //val response: HttpResponse = RESTClient .get("http://0.0.0.0/8080")
+    val port = 8080
+
+    val address = "http://$HOST:$port"
+
     while (true) {
         println("1. Get all available games")
         println("2. Get specific game")
@@ -44,14 +48,14 @@ suspend fun main() {
         val action = readlnOrNull() ?: ""
         when (action) {
             "1" -> {
-                val response: HttpResponse = RESTClient .get("$address/games")
+                val response: HttpResponse = RESTClient.get("$address/games")
                 println(response.bodyAsText())
             }
 
             "2" -> {
                 println("Enter game id:")
                 val id = readlnOrNull() ?: ""
-                val response: HttpResponse = RESTClient .get("$address/games/$id")
+                val response: HttpResponse = RESTClient.get("$address/games/$id")
                 println(response.bodyAsText())
             }
 
@@ -73,9 +77,10 @@ suspend fun main() {
             "4" -> {
                 println("Enter game id:")
                 val id = readlnOrNull() ?: ""
-                val response: HttpResponse = RESTClient .delete("$address/games/$id")
+                val response: HttpResponse = RESTClient.delete("$address/games/$id")
                 println(response.bodyAsText())
             }
+
             "5" -> {
                 println("Enter game id:")
                 val id = readlnOrNull() ?: ""
@@ -86,7 +91,12 @@ suspend fun main() {
                 }
                 println("Type exit to end the session")
                 runBlocking {
-                    webSocketClient.webSocket(method = HttpMethod.Get, host = "0.0.0.0", port = 8080, path = "/games/join?gameId=$id&playerName=$playerName") {
+                    webSocketClient.webSocket(
+                        method = HttpMethod.Get,
+                        host = HOST,
+                        port = port,
+                        path = "/games/join?gameId=$id&playerName=$playerName"
+                    ) {
                         val messageOutputRoutine = launch { outputMessages() }
                         val userInputRoutine = launch { inputMessages() }
 
@@ -97,9 +107,11 @@ suspend fun main() {
                 webSocketClient.close()
                 println("Connection closed. Goodbye!")
             }
+
             "8" -> {
                 return
             }
+
             else -> {
                 println("Invalid action")
             }
