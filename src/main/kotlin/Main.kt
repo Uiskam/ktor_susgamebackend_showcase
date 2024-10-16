@@ -18,7 +18,8 @@ import kotlinx.serialization.json.Json
 data class GameCreationRequest(val gameName: String, val maxNumberOfPlayers: Int = 4, val gamePin: String? = null)
 
 
-const val HOST = "192.168.0.105"
+// const val HOST = "192.168.0.105"
+const val HOST = "0.0.0.0"
 
 
 suspend fun main() {

@@ -1,6 +1,7 @@
 
 val ktor_version: String by project
 val kotlin_version: String by project
+val cbor_version = "1.5.1"
 
 plugins {
     kotlin("jvm") version "1.9.23"
@@ -22,6 +23,8 @@ dependencies {
     implementation("io.ktor:ktor-client-websockets:$ktor_version")
     implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$cbor_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:$cbor_version")
 }
 
 tasks.test {
