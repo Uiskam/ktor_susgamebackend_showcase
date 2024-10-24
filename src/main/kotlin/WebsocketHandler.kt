@@ -83,34 +83,6 @@ suspend fun DefaultClientWebSocketSession.outputMessages() {
 }
 
 
-
-@OptIn(ExperimentalSerializationApi::class)
-suspend fun DefaultClientWebSocketSession.inputMessagesOLD() {
-    while (true) {
-        val command = readLine() ?: ""
-        if (command.equals("exit", true)) return
-//        val message: ClientSocketMessage = ClientSocketMessage.SimpleMessage(
-//            authorNickname = "playerName",
-//            message = "receivedText",
-//        )
-        val message: ClientSocketMessage = ClientSocketMessage.ChatMessage(
-            command
-        )
-        try {
-            if (!command.equals("b", true)) {
-                send(command)
-            } else {
-                send(Cbor.encodeToByteArray(message))
-            }
-
-
-        } catch (e: Exception) {
-            println("Error while sending: " + e.localizedMessage)
-            return
-        }
-    }
-}
-
 @OptIn(ExperimentalSerializationApi::class)
 suspend fun DefaultClientWebSocketSession.inputMessages() {
     while (true) {
@@ -118,6 +90,15 @@ suspend fun DefaultClientWebSocketSession.inputMessages() {
         when (command) {
             "start" -> {
                 val message: ClientSocketMessage = ClientSocketMessage.GameState(GameStatus.RUNNING)
+                try {
+                    send(Cbor.encodeToByteArray(message))
+                } catch (e: Exception) {
+                    println("Error while sending: " + e.localizedMessage)
+                    return
+                }
+            }
+            "setPath" -> {
+                val message: ClientSocketMessage = ClientSocketMessage.HostDTO(1, listOf(0, 1, 2), 1)
                 try {
                     send(Cbor.encodeToByteArray(message))
                 } catch (e: Exception) {
