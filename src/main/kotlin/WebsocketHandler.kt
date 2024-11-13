@@ -66,9 +66,24 @@ suspend fun DefaultClientWebSocketSession.outputMessages() {
                             println("received binary: $messageText")
                         }
 
-                        else -> {
-                            println("received UNKNOWN binary: $receivedMessage")
+                        is ServerSocketMessage.GameState -> {
+                            val edges = receivedMessage.edges
+                            val players = receivedMessage.players
+                            println(receivedMessage)
+                            println()
                         }
+
+                        is ServerSocketMessage.ServerError -> {
+                            println("received ERROR : ${receivedMessage.errorMessage}")
+                        }
+
+                        is ServerSocketMessage.QuizQuestionDTO -> {
+                            println("received QUESTION: ${receivedMessage.question}")
+                            println("received ANSWERS: ${receivedMessage.answers}")
+                            println("received CORRECT ANSWER: ${receivedMessage.correctAnswer}")
+                        }
+
+
                     }
                 }
 
@@ -98,12 +113,36 @@ suspend fun DefaultClientWebSocketSession.inputMessages() {
                 }
             }
             "setPath" -> {
-                val message: ClientSocketMessage = ClientSocketMessage.HostDTO(1, listOf(0, 1, 2), 1)
+                val message: ClientSocketMessage = ClientSocketMessage.HostDTO(1, listOf(2, 3), 1)
                 try {
                     send(Cbor.encodeToByteArray(message))
                 } catch (e: Exception) {
                     println("Error while sending: " + e.localizedMessage)
                     return
+                }
+            }
+            "ans" -> {
+                println("Enter questionId,answer:")
+                val input = readlnOrNull() ?: ""
+                // Check if the input matches the format "Int,Int"
+                if (Regex("""^\d+,\d+$""").matches(input)) {
+                    // Split the input and convert each part to Int
+                    val parts = input.split(",")
+                    val questionId = parts[0].toInt()
+                    val answer = parts[1].toInt()
+
+                    // Print the extracted values
+                    println("questionId: $questionId")
+                    println("answer: $answer")
+                    val message: ClientSocketMessage = ClientSocketMessage.QuizAnswerDTO(questionId, answer)
+                    try {
+                        send(Cbor.encodeToByteArray(message))
+                    } catch (e: Exception) {
+                        println("Error while sending: " + e.localizedMessage)
+                        return
+                    }
+                } else {
+                    println("Invalid format. Please enter in 'Int,Int' format.")
                 }
             }
             "exit" -> return

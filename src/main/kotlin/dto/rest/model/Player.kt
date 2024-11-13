@@ -15,7 +15,7 @@ data class PlayerId(val value: Int)
 data class PlayerNickname(val value: String)
 
 @Serializable
-data class Player(
+data class PlayerREST(
     val nickname: PlayerNickname,
     val id: PlayerId,
     val colorHex: Long,
