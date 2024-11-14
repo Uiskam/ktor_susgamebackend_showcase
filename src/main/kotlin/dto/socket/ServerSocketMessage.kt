@@ -1,7 +1,7 @@
 // WARNING: THIS FILE WAS CLONED AUTOMATICALLY FROM 'SusGameDTO' GITHUB REPOSITORY
 // IT SHOULD NOT BE EDITED IN ANY WAY
 // IN ORDER TO CHANGE THIS DTO, COMMIT TO 'SusGameDTO' GITHUB REPOSITORY
-// IN ORDER TO UPDATE THIS FILE TO NEWEST VERSION, RUN 'scripts/update-DTO.sh'
+// IN ORDER TO UPDATE THIS FILE TO NEWEST VERSION, RUN 'scripts/update-DTO.sh'\n\n
 
 package edu.agh.susgame.dto.socket
 
@@ -14,6 +14,10 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 sealed class ServerSocketMessage {
+    @Serializable
+    data class IdConfig(
+        val id: Int
+    ) : ServerSocketMessage()
     /**
      * Information about the whole game state that is coming periodically from the server
      */
@@ -50,5 +54,28 @@ sealed class ServerSocketMessage {
         val question: String,
         val answers: List<String>,
         val correctAnswer: Int,
+    ) : ServerSocketMessage()
+
+    @Serializable
+    data class PlayerJoiningResponse(
+        val playerId: Int,
+        val playerName: String
+    ) : ServerSocketMessage()
+
+    /**
+     * Used for handling player changing state in lobby
+     */
+    @Serializable
+    data class PlayerChangeReadinessResponse(
+        val playerId: Int,
+        val state: Boolean
+    ) : ServerSocketMessage()
+
+    /**
+     * Used for handling player leaving lobby
+     */
+    @Serializable
+    data class PlayerLeavingResponse(
+        val playerId: Int
     ) : ServerSocketMessage()
 }

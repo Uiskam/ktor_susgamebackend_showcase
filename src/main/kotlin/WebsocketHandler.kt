@@ -83,7 +83,10 @@ suspend fun DefaultClientWebSocketSession.outputMessages() {
                             println("received CORRECT ANSWER: ${receivedMessage.correctAnswer}")
                         }
 
-
+                        is ServerSocketMessage.PlayerChangeReadinessResponse -> println("received ${receivedMessage.playerId} is ${if (receivedMessage.state) "ready" else "unready"}")
+                        is ServerSocketMessage.PlayerJoiningResponse ->  println("received: ${receivedMessage.playerId}: ${receivedMessage.playerName} joined")
+                        is ServerSocketMessage.PlayerLeavingResponse -> println("received: ${receivedMessage.playerId} left")
+                        is ServerSocketMessage.IdConfig -> println("received: your index is ${receivedMessage.id}")
                     }
                 }
 
@@ -100,6 +103,13 @@ suspend fun DefaultClientWebSocketSession.outputMessages() {
 
 @OptIn(ExperimentalSerializationApi::class)
 suspend fun DefaultClientWebSocketSession.inputMessages() {
+    val message: ClientSocketMessage = ClientSocketMessage.PlayerJoiningRequest("test-name")
+    try {
+        send(Cbor.encodeToByteArray(message))
+    } catch (e: Exception) {
+        println("Error while sending: " + e.localizedMessage)
+        return
+    }
     while (true) {
         val command = readlnOrNull() ?: ""
         when (command) {
@@ -112,8 +122,35 @@ suspend fun DefaultClientWebSocketSession.inputMessages() {
                     return
                 }
             }
+            "ready" -> {
+                val message: ClientSocketMessage = ClientSocketMessage.PlayerChangeReadinessRequest(0, true)
+                try {
+                    send(Cbor.encodeToByteArray(message))
+                } catch (e: Exception) {
+                    println("Error while sending: " + e.localizedMessage)
+                    return
+                }
+            }
+            "unready" -> {
+                val message: ClientSocketMessage = ClientSocketMessage.PlayerChangeReadinessRequest(0, false)
+                try {
+                    send(Cbor.encodeToByteArray(message))
+                } catch (e: Exception) {
+                    println("Error while sending: " + e.localizedMessage)
+                    return
+                }
+            }
             "setPath" -> {
                 val message: ClientSocketMessage = ClientSocketMessage.HostDTO(1, listOf(2, 3), 1)
+                try {
+                    send(Cbor.encodeToByteArray(message))
+                } catch (e: Exception) {
+                    println("Error while sending: " + e.localizedMessage)
+                    return
+                }
+            }
+            "upgrade" -> {
+                val message: ClientSocketMessage = ClientSocketMessage.UpgradeDTO(1)
                 try {
                     send(Cbor.encodeToByteArray(message))
                 } catch (e: Exception) {
@@ -145,7 +182,16 @@ suspend fun DefaultClientWebSocketSession.inputMessages() {
                     println("Invalid format. Please enter in 'Int,Int' format.")
                 }
             }
-            "exit" -> return
+            "exit" -> {
+                val message: ClientSocketMessage = ClientSocketMessage.PlayerLeavingRequest(playerId = 0)
+                try {
+                    send(Cbor.encodeToByteArray(message))
+                    return
+                } catch (e: Exception) {
+                    println("Error while sending: " + e.localizedMessage)
+                    return
+                }
+            }
             else -> {
                 val message: ClientSocketMessage = ClientSocketMessage.ChatMessage(command)
                 try {
