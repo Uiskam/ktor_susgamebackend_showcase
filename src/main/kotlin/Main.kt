@@ -42,6 +42,8 @@ suspend fun main() {
 
     val address = "http://$HOST:$port"
 
+    var gameID = ""
+
     while (true) {
         println("1. Get all available games")
         println("2. Get specific game")
@@ -103,7 +105,8 @@ suspend fun main() {
                         port = port,
                         path = "/games/join?gameId=$id&playerName=$playerName"
                     ) {
-                        val messageOutputRoutine = launch { outputMessages() }
+                        gameID = id
+                        val messageOutputRoutine = launch { outputMessages(RESTClient, address, gameID) }
                         val userInputRoutine = launch { inputMessages() }
 
                         userInputRoutine.join() // Wait for completion; either "exit" or error
