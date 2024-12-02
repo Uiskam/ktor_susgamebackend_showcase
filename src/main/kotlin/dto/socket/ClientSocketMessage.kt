@@ -47,9 +47,30 @@ sealed class ClientSocketMessage {
         val message: String,
     ) : ClientSocketMessage()
 
+    /**
+     * Used for answering the quiz question
+     */
     @Serializable
     data class QuizAnswerDTO(
         val questionId: Int,
         val answer: Int,
     ) : ClientSocketMessage()
+
+    /**
+     * Used for handling player changing state in lobby
+     */
+    @Serializable
+    data class PlayerChangeReadiness(
+        val playerId: Int,
+        val state: Boolean
+    ) : ClientSocketMessage()
+
+    /**
+     * Used for handling player leaving lobby
+     */
+    @Serializable
+    data class PlayerLeaving(
+        val playerId: Int
+    ) : ClientSocketMessage()
+
 }
