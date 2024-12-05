@@ -95,6 +95,7 @@ suspend fun DefaultClientWebSocketSession.outputMessages(RESTClient: HttpClient,
                         is ServerSocketMessage.PlayerLeaving -> println("received: ${receivedMessage.playerId} left")
                         is ServerSocketMessage.IdConfig -> println("received: your index is ${receivedMessage.id}")
                         is ServerSocketMessage.GameStarted -> {println("GAME STARTED"); restGetMap(RESTClient, address, gameID)}
+                        is ServerSocketMessage.PlayerChangeColor -> println("received: ${receivedMessage.playerId} changed color to ${receivedMessage.color}")
                     }
                 }
 
@@ -148,7 +149,7 @@ suspend fun DefaultClientWebSocketSession.inputMessages() {
                 }
             }
             "setPath" -> {
-                val message: ClientSocketMessage = ClientSocketMessage.HostDTO(1, listOf(2, 3), 1)
+                val message: ClientSocketMessage = ClientSocketMessage.HostRouteDTO(1, listOf(2, 3))
                 try {
                     send(Cbor.encodeToByteArray(message))
                 } catch (e: Exception) {

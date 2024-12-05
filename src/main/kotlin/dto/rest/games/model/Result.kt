@@ -6,8 +6,7 @@
 package edu.agh.susgame.dto.rest.games.model
 
 import edu.agh.susgame.dto.rest.ApiResult
-import edu.agh.susgame.dto.rest.model.GameMapEdgeDTO
-import edu.agh.susgame.dto.rest.model.GameMapNodeDTO
+import edu.agh.susgame.dto.rest.model.GameMapDTO
 import edu.agh.susgame.dto.rest.model.Lobby
 import edu.agh.susgame.dto.rest.model.LobbyId
 import java.net.HttpURLConnection
@@ -31,8 +30,7 @@ sealed class GetGameApiResult(responseCode: Int) : ApiResult(responseCode) {
 
 sealed class GetGameMapApiResult(responseCode: Int) : ApiResult(responseCode) {
     data class Success(
-        val nodes: List<GameMapNodeDTO>,
-        val edges: List<GameMapEdgeDTO>,
+        val gameMap: GameMapDTO,
     ) : GetGameMapApiResult(HttpURLConnection.HTTP_OK)
 
     data object GameDoesNotExist : GetGameMapApiResult(HttpURLConnection.HTTP_NOT_FOUND)

@@ -17,9 +17,14 @@ sealed class ClientSocketMessage {
      * Used for host configuration, change of selected path or number of packets generated per tick
      */
     @Serializable
-    data class HostDTO(
+    data class HostRouteDTO(
         val id: Int,
         val packetPath: List<Int>,
+    ) : ClientSocketMessage()
+
+    @Serializable
+    data class HostFlowDTO(
+        val id: Int,
         val packetsSentPerTick: Int,
     ) : ClientSocketMessage()
 
@@ -63,6 +68,12 @@ sealed class ClientSocketMessage {
     data class PlayerChangeReadiness(
         val playerId: Int,
         val state: Boolean
+    ) : ClientSocketMessage()
+
+    @Serializable
+    data class PlayerChangeColor(
+        val playerId: Int,
+        val color: ULong
     ) : ClientSocketMessage()
 
     /**

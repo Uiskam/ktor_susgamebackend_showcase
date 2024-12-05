@@ -14,10 +14,14 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 sealed class ServerSocketMessage {
+    /**
+     * Informs the client about its ID
+     */
     @Serializable
     data class IdConfig(
         val id: Int
     ) : ServerSocketMessage()
+
     /**
      *
      */
@@ -25,6 +29,7 @@ sealed class ServerSocketMessage {
     data class GameStarted(
         val id: Int
     ) : ServerSocketMessage()
+
     /**
      * Information about the whole game state that is coming periodically from the server
      */
@@ -36,6 +41,7 @@ sealed class ServerSocketMessage {
         val edges: List<EdgeDTO>,
         val players: List<PlayerDTO>,
         val gameStatus: GameStatus,
+        val remainingSeconds: Int,
     ) : ServerSocketMessage()
 
     /**
@@ -82,6 +88,12 @@ sealed class ServerSocketMessage {
     data class PlayerChangeReadiness(
         val playerId: Int,
         val state: Boolean
+    ) : ServerSocketMessage()
+
+    @Serializable
+    data class PlayerChangeColor(
+        val playerId: Int,
+        val color: ULong
     ) : ServerSocketMessage()
 
     /**
