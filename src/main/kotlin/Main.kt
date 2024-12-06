@@ -94,6 +94,8 @@ suspend fun main() {
                 val id = readlnOrNull() ?: ""
                 println("Enter player name:")
                 val playerName = readlnOrNull() ?: ""
+                println("Enter player id:")
+                val playerId = readlnOrNull() ?: ""
                 val webSocketClient = HttpClient {
                     install(WebSockets)
                 }
@@ -103,7 +105,7 @@ suspend fun main() {
                         method = HttpMethod.Get,
                         host = HOST,
                         port = port,
-                        path = "/games/join?gameId=$id&playerName=$playerName"
+                        path = "/games/join?gameId=$id&playerName=$playerName&playerId=$playerId"
                     ) {
                         gameID = id
                         val messageOutputRoutine = launch { outputMessages(RESTClient, address, gameID) }
