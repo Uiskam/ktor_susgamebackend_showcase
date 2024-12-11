@@ -18,6 +18,10 @@ data class GameMapDTO(
      * Number of packets that server must receive to win.
      */
     val gameGoal: Int,
+    /**
+     * The number of iterations required for a router with a full buffer to overheat.
+     */
+    val criticalBufferOverheatLevel: Int,
 )
 
 @Serializable

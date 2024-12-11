@@ -5,6 +5,7 @@
 
 package edu.agh.susgame.dto.rest.model
 
+import edu.agh.susgame.dto.common.ColorDTO
 import kotlinx.serialization.Serializable
 
 
@@ -18,4 +19,6 @@ data class PlayerNickname(val value: String)
 data class PlayerREST(
     val nickname: PlayerNickname,
     val id: PlayerId,
+    val color: ColorDTO?,
+    val readiness: Boolean,
 )

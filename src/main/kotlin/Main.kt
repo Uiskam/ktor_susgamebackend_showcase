@@ -92,20 +92,31 @@ suspend fun main() {
             "5" -> {
                 println("Enter game id:")
                 val id = readlnOrNull() ?: ""
+
                 println("Enter player name:")
                 val playerName = readlnOrNull() ?: ""
+
+                println("Enter gamePin:")
+                val gamePin = readlnOrNull() ?: ""
+
                 println("Enter player id:")
                 val playerId = readlnOrNull() ?: ""
+
                 val webSocketClient = HttpClient {
                     install(WebSockets)
                 }
                 println("Type exit to end the session")
+                val path: String = if (gamePin == "") {
+                    "/games/join?gameId=$id&playerName=$playerName&playerId=$playerId"
+                } else {
+                    "/games/join?gameId=$id&playerName=$playerName&playerId=$playerId&gamePin=$gamePin"
+                }
                 runBlocking {
                     webSocketClient.webSocket(
                         method = HttpMethod.Get,
                         host = HOST,
                         port = port,
-                        path = "/games/join?gameId=$id&playerName=$playerName&playerId=$playerId"
+                        path = path
                     ) {
                         gameID = id
                         val messageOutputRoutine = launch { outputMessages(RESTClient, address, gameID) }
