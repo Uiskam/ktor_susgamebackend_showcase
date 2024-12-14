@@ -63,7 +63,16 @@ suspend fun main() {
             "2" -> {
                 println("Enter game id:")
                 val id = readlnOrNull() ?: ""
-                val response: HttpResponse = RESTClient.get("$address/games/$id")
+
+                println("Enter gamePin:")
+                val gamePin = readlnOrNull() ?: ""
+
+                val urlString = if (gamePin == "") {
+                    "$address/games/$id"
+                } else {
+                    "$address/games/$id?gamePin=$gamePin"
+                }
+                val response: HttpResponse = RESTClient.get(urlString)
                 println(response.bodyAsText())
             }
 
