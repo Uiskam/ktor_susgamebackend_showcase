@@ -149,7 +149,16 @@ suspend fun DefaultClientWebSocketSession.inputMessages() {
                 }
             }
             "setPath" -> {
-                val message: ClientSocketMessage = ClientSocketMessage.HostRouteDTO(1, listOf(2, 3))
+                val message: ClientSocketMessage = ClientSocketMessage.HostRouteDTO(0, listOf(1, 2))
+                try {
+                    send(Cbor.encodeToByteArray(message))
+                } catch (e: Exception) {
+                    println("Error while sending: " + e.localizedMessage)
+                    return
+                }
+            }
+            "setFlow" -> {
+                val message: ClientSocketMessage = ClientSocketMessage.HostFlowDTO(0, 3)
                 try {
                     send(Cbor.encodeToByteArray(message))
                 } catch (e: Exception) {
